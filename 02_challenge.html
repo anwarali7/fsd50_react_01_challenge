@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Hello React</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- babel => compilation du JSX -->
+  <script src="https://unpkg.com/babel-standalone@latest/babel.min.js"></script>
+
+  <style>
+    .app {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .result {
+      margin-bottom: 10px;
+    }
+
+    .inputs {
+      margin-bottom: 10px;
+    }
+
+    .inputs label {
+      margin-right: 10px;
+    }
+
+    .buttons {
+      margin-bottom: 10px;
+    }
+
+    .buttons button {
+      margin-right: 10px;
+    }
+
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    const App = (props) => {
+
+      const [num1, setNum1] = React.useState(0);
+      const [num2, setNum2] = React.useState(0);
+      const [result, setResult] = React.useState(null);
+      const [operationCount, setOperationCount] = React.useState(0);
+      const [message, setMessage] = React.useState('');
+
+
+      React.useEffect(() => {
+        if (operationCount === 10) {
+          setMessage('Vous avez effectué 10 opérations');
+        }
+      }, [operationCount]);
+
+
+      return (
+        <div className="app">
+          <div className="result">Résultat : {result}</div>
+          <div className="inputs">
+            <label htmlFor="num1">Num1 :</label>
+            <input id="num1" type="number" value={num1} onChange={(e) => setNum1(parseInt(e.target.value))} />
+            <label htmlFor="num2">Num2 :</label>
+            <input id="num2" type="number" value={num2} onChange={(e) => setNum2(parseInt(e.target.value))} />
+          </div>
+          <div className="buttons">
+            <button onClick={() => {
+              setOperationCount(operationCount + 1);
+              setResult(num1 + num2)
+            }}>+</button>
+            <button onClick={() => {
+              setOperationCount(operationCount + 1);
+              setResult(num1 * num2)
+            }}>x</button>
+            <button onClick={() => setResult(null)}>Reset</button>
+            <button onClick={() => setMessage('Hello World')}>Show message</button>
+            <button onClick={() => setMessage('')}>Hide message</button>
+          </div>
+          {message && <div className="message">{message}</div>}
+        </div>
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <App />
+    );
+
+  </script>
+</body>
+
+</html>
