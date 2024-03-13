@@ -52,7 +52,10 @@
     const Horloge = () => {
       const [date, setDate] = React.useState(new Date());
 
-      const timerID = setInterval(() => setDate(new Date()), 1000);
+      React.useEffect(() => {
+        const timerID = setInterval(() => setDate(new Date()), 1000);
+        return () => clearInterval(timerID);
+      }, []);
 
       return (
         <h2>{date.toLocaleTimeString()}</h2>
