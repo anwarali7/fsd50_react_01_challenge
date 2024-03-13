@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Hello React</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- babel => compilation du JSX -->
+  <script src="https://unpkg.com/babel-standalone@latest/babel.min.js"></script>
+  <style>
+    .app {
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const root = document.getElementById('root');
+
+
+    function App() {
+
+      const [phrase, setPhrase] = React.useState('')
+      const [phrases, setPhrases] = React.useState([])
+
+      const handleChange = e => {
+        const { value } = e.target
+        setPhrase(value)
+      }
+
+      const handleAdd = () => {
+        setPhrases([...phrases, phrase])
+        setPhrase('')
+      }
+
+      return (
+        <div className="app">
+          <input type="text" onChange={handleChange} value={phrase} name="phrase" />
+
+          <button onClick={handleAdd} > Add Phrase </button>
+
+          <ul>
+            {phrases.map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
+        </div>
+      )
+    }
+
+    ReactDOM.createRoot(root).render(<App />)
+  </script>
+</body>
+
+</html>
