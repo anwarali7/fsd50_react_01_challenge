@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- babel => compilation du JSX -->
+  <script src="https://unpkg.com/babel-standalone@latest/babel.min.js"></script>
+  <style>
+    .app {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      width: 150px;
+      background-color: aliceblue;
+    }
+
+    label {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 15px;
+    }
+
+    input {
+      width: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+
+    const initialState = {
+      formValues: {
+        digit: '0',
+        letter: ''
+      },
+      tuples: []
+    }
+
+    const reducer = (state, action) => {
+      switch (action.type) {
+        case 'SET_FORM_VALUE':
+          return {
+            ...state,
+            formValues: {
+              ...state.formValues,
+              [action.name]: action.value
+            }
+          }
+        case 'ADD_TUPLE':
+          return {
+            ...state,
+            tuples: [
+              ...state.tuples,
+              {
+                digit: state.formValues.digit,
+                letter: state.formValues.letter
+              }
+            ],
+            formValues: {
+              digit: '0',
+              letter: ''
+            }
+          }
+        default:
+          return state;
+      }
+    }
+
+    function App() {
+
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      const handleFormSubmit = (e) => {
+        e.preventDefault();
+        dispatch({ type: 'ADD_TUPLE' });
+      }
+
+      const handleFormChange = (e) => {
+        console.log(state);
+        dispatch({ type: 'SET_FORM_VALUE', name: e.target.name, value: e.target.value });
+      }
+
+      return (
+        <div className="app">
+          <form
+            action=""
+            onSubmit={handleFormSubmit}
+            onChange={handleFormChange}
+          >
+            <label htmlFor="digit">
+              Chiffre :
+              <input type="number" id="digit" name="digit" min="0" max="9" required value={state.formValues.digit} />
+            </label>
+
+            <label htmlFor="letter">
+              Lettre :
+              <input type="text" id="letter" name="letter" value={state.formValues.letter} required pattern="^[a-zA-Z]$" />
+            </label>
+
+            <button type="submit">Ajouter</button>
+          </form>
+          <div className="tuples">
+            <h2>Tuples</h2>
+            <ul>
+              {state.tuples.map((tuple, index) => (
+                <li key={index}>{tuple.letter} - {tuple.digit}
+                  {
+                    (parseInt(tuple.digit) % 3 === 0) ?
+                      "*"
+                      :
+                      ""
+                  }
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <App />
+    );
+  </script>
+</body>
+
+</html>
