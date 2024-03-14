@@ -91,7 +91,6 @@
       }
 
       const handleFormChange = (e) => {
-        console.log(state);
         dispatch({ type: 'SET_FORM_VALUE', name: e.target.name, value: e.target.value });
       }
 
@@ -104,12 +103,12 @@
           >
             <label htmlFor="digit">
               Chiffre :
-              <input type="number" id="digit" name="digit" min="0" max="9" required value={state.formValues.digit} />
+              <input type="number" id="digit" name="digit" min="0" max="9" required onChange={handleFormChange} value={state.formValues.digit} />
             </label>
 
             <label htmlFor="letter">
               Lettre :
-              <input type="text" id="letter" name="letter" value={state.formValues.letter} required pattern="^[a-zA-Z]$" />
+              <input type="text" id="letter" name="letter" onChange={handleFormChange} value={state.formValues.letter} required pattern="^[a-zA-Z]$" />
             </label>
 
             <button type="submit">Ajouter</button>
