@@ -148,13 +148,33 @@
   <div id="root"></div>
   <script type="text/babel">
 
+    // #################################################################
+    // Reducer and state management
+    // #################################################################
+
     const initialState = {
       formData: {
         "text": 'Bonjour tout le monde',
         "render-style": 'palevioletred',
         "text-size": '15',
       },
-      textList: []
+      textList: [
+        {
+          "text": 'Hello world (tomato, 20px)',
+          "render-style": 'tomato',
+          "text-size": '20',
+        },
+        {
+          "text": '(palevioletred 18) Les mots trop longs sont coupés grâce à word-break et overflow-wrap (break-word): WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW',
+          "render-style": 'palevioletred',
+          "text-size": '18',
+        },
+        {
+          "text": 'Scroll vertical (max-height: 50vh) lorsque la liste est trop longue. Essayez de supprimer des éléments pour voir le résultat.',
+          "render-style": 'tomato',
+          "text-size": '15',
+        }
+      ]
     }
 
     const reducer = (state, action) => {
@@ -193,9 +213,28 @@
       }
     }
 
-    function App() {
+    // #################################################################
+    // Context and provider for state
+    // #################################################################
 
-      const [state, dispatch] = React.useReducer(reducer, initialState)
+    const TextContext = React.createContext([])
+    const TextProvider = ({ children }) => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      return (
+        <TextContext.Provider value={[state, dispatch]}>
+          {children}
+        </TextContext.Provider>
+      );
+    };
+
+    // #################################################################
+    // Components
+    // #################################################################
+
+    function TextForm() {
+
+      const [state, dispatch] = React.useContext(TextContext)
 
       const handleFormSubmit = (e) => {
         e.preventDefault()
@@ -212,6 +251,70 @@
         })
       }
 
+      return (
+        <form onSubmit={handleFormSubmit}>
+          <label htmlFor="text">Saisir le texte
+            <input
+              type="text"
+              id="text"
+              name="text"
+              value={state.formData.text}
+              placeholder="Bonjour tout le monde"
+              required
+              onChange={handleInputChange} />
+          </label>
+
+          <label htmlFor="render-style">Sélectionnez un style de rendu
+            <select
+              id="render-style"
+              name="render-style"
+              onChange={handleInputChange}
+              value={state.formData['render-style']}
+            >
+              <option value="palevioletred">palevioletred</option>
+              <option value="tomato">tomato</option>
+            </select>
+          </label>
+
+          <label htmlFor="text-size">Taille du texte (en px)
+            <input
+              type="number"
+              id="text-size"
+              name="text-size"
+              min="15"
+              max="20"
+              required
+              onChange={handleInputChange}
+              value={state.formData['text-size']}
+            />
+          </label>
+
+          <button type="submit">Valider</button>
+        </form>
+      )
+    }
+
+    function TextElement({ text, index, handleTextDelete }) {
+      return (
+        <div key={index} className="text-element">
+          Texte {index + 1} :
+          <div
+            className="text-value"
+            style={{
+              color: text['render-style'],
+              fontSize: `${text['text-size']}px`
+            }}
+          >
+            {text['text']}
+          </div>
+          <button onClick={() => handleTextDelete(index)}>Supprimer</button>
+        </div>
+      )
+    }
+
+    function TextList() {
+      const [state, dispatch] = React.useContext(TextContext)
+
       const handleTextDelete = (index) => {
         dispatch({
           type: 'DELETE_TEXT',
@@ -222,66 +325,38 @@
       }
 
       return (
+        <div className="text-list" hidden={state.textList.length === 0}>
+          {state.textList.map((text, index) => (
+            <TextElement
+              key={index}
+              text={text}
+              index={index}
+              handleTextDelete={handleTextDelete}
+            />
+          ))}
+        </div>
+      )
+    }
+
+    function App() {
+
+      const [state, dispatch] = React.useContext(TextContext)
+
+      return (
         <div className="app">
           <h1>Challenge 4 : Num characters</h1>
-
-          <form onSubmit={handleFormSubmit}>
-            <label htmlFor="text">Saisir le texte
-              <input
-                type="text"
-                id="text"
-                name="text"
-                value={state.formData.text}
-                placeholder="Bonjour tout le monde"
-                required
-                onChange={handleInputChange} />
-            </label>
-
-            <label htmlFor="render-style">Sélectionnez un style de rendu
-              <select
-                id="render-style"
-                name="render-style"
-                onChange={handleInputChange}
-                value={state.formData['render-style']}
-              >
-                <option value="palevioletred">palevioletred</option>
-                <option value="tomato">tomato</option>
-              </select>
-            </label>
-
-            <label htmlFor="text-size">Taille du texte (en px)
-              <input
-                type="number"
-                id="text-size"
-                name="text-size"
-                min="15"
-                max="20"
-                required
-                onChange={handleInputChange}
-                value={state.formData['text-size']}
-              />
-            </label>
-
-            <button type="submit">Valider</button>
-          </form>
-
-          <div className="text-list" hidden={state.textList.length === 0}>
-            {state.textList.map((text, index) => (
-              <div key={index} className="text-element">
-                Texte {index + 1} :
-                <div className="text-value" style={{ color: text['render-style'], fontSize: `${text['text-size']}px` }}>
-                  {text['text']}
-                </div>
-                <button onClick={() => handleTextDelete(index)}>Supprimer</button>
-              </div>
-            ))}
-          </div>
+          <TextForm />
+          <TextList />
         </div>
       )
     }
 
     const root = document.getElementById('root');
-    ReactDOM.createRoot(root).render(<App />)
+    ReactDOM.createRoot(root).render(
+      <TextProvider>
+        <App />
+      </TextProvider>
+    )
   </script>
 </body>
 
